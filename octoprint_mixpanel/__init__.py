@@ -1,6 +1,8 @@
 # coding=utf-8
 from __future__ import absolute_import
 
+import sys
+
 import octoprint.plugin
 from mixpanel import Mixpanel
 from netifaces import ifaddresses, AF_LINK
@@ -28,9 +30,10 @@ class MixpanelPlugin(octoprint.plugin.SettingsPlugin,
             return
 
         if not hasattr(self, 'mp'):
+            ethernet = 'en0' if sys.platform == 'darwin' else 'eth0'
             token = self._settings.get(['token'])
             self.mp = Mixpanel(token)
-            self.mac = ifaddresses('en0')[AF_LINK][0]['addr']
+            self.mac = ifaddresses(ethernet)[AF_LINK][0]['addr']
         self.mp.track(self.mac, event, payload)
 
     ##~~ SettingsPlugin mixin
